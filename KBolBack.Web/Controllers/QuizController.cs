@@ -1,22 +1,22 @@
 ﻿using KBolBack.Web.Models;
+using Microsoft.AspNet.Identity;
+using Microsoft.Azure;
+using Microsoft.WindowsAzure.Storage;
 using MongoDB.Driver;
 using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
+using System.IO;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
-using Microsoft.AspNet.Identity;
 
 namespace KBolBack.Web.Controllers
 {
     [Authorize]
     public class QuizController : Controller
     {
-        private static string mongoDBConnection = ConfigurationManager.ConnectionStrings["MongoDBConnection"].ConnectionString;
-        private static string quizDatabaseName = ConfigurationManager.AppSettings["QuizDatabaseName"];
+        private static string mongoDBConnection = CloudConfigurationManager.GetSetting("MongoDBConnection");
+        private static string quizDatabaseName = CloudConfigurationManager.GetSetting("QuizDatabaseName");
 
-        // GET: Question
         public ActionResult Index()
         {
             return View();
@@ -38,7 +38,7 @@ namespace KBolBack.Web.Controllers
         }
 
         [HttpPost]
-        public ActionResult Create(Quiz quiz)
+        public async Task<ActionResult> Create(Quiz quiz)
         {
             if (quiz != null && quiz.Type == QuestionType.ShortAnswer)
             {
@@ -68,12 +68,35 @@ namespace KBolBack.Web.Controllers
                 quiz.CreatedBy = User.Identity.GetUserName();
                 quiz.CreatedDate = DateTime.Now;
 
+                if (Request.Files.Count > 0)
+                {
+                    quiz.ImageUrl = await UploadImageAsync(Request.Files[0]);
+                }
+
                 collection.InsertOne(quiz);
 
                 return RedirectToAction("Index");
             }
 
             return View(quiz);
+        }
+
+        private async Task<string> UploadImageAsync(HttpPostedFileBase file)
+        {
+            var storageAccount = CloudStorageAccount.Parse(CloudConfigurationManager.GetSetting("StorageConnectionString"));
+            var blobClient = storageAccount.CreateCloudBlobClient();
+            var blobContainer = blobClient.GetContainerReference(CloudConfigurationManager.GetSetting("BlobContainerName"));
+
+            var blob = blobContainer.GetBlockBlobReference(GetRandomBlobName(file.FileName));
+            await blob.UploadFromStreamAsync(file.InputStream);
+
+            return blob.Uri.AbsoluteUri;
+        }
+
+        private static string GetRandomBlobName(string filename)
+        {
+            string ext = Path.GetExtension(filename);
+            return string.Format("{0:10}_{1}{2}", DateTime.Now.Ticks, Guid.NewGuid(), ext);
         }
     }
 }

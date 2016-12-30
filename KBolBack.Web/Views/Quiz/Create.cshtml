@@ -7,7 +7,7 @@
 <h2>Create</h2>
 
 
-@using (Html.BeginForm()) 
+@using (Html.BeginForm("Create", "Quiz", FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
     @Html.AntiForgeryToken()
     
@@ -33,30 +33,31 @@
         </div>
 
         <div class="form-group">
-            @Html.LabelFor(model => model.ImageUrl, htmlAttributes: new { @class = "control-label col-md-2" })
+            @Html.Label("Image", htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.EditorFor(model => model.ImageUrl, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.ImageUrl, "", new { @class = "text-danger" })
+                <input type="file" name="FileUpload" accept="image/*"/>
             </div>
         </div>
 
         <div id="divAnswerChoices">
             @Html.Label("Choices", htmlAttributes: new { @class = "control-label col-md-2" })
-            <table id="tblChoices" style="width:500px;">
-                @for (int i = 0; i < 4; i++)
-                {
-                    <tr>
-                        <td width="10%">
-                            @Html.DisplayFor(model => model.AnswerChoices[i].No)
-                            @Html.HiddenFor(model => model.AnswerChoices[i].No)
-                        </td>
-                        <td width="90%">
-                            @Html.EditorFor(model => model.AnswerChoices[i].Answer, new { htmlAttributes = new { @class = "form-control" } })
-                            @Html.ValidationMessageFor(model => model.AnswerChoices[i].Answer, "", new { @class = "text-danger" })
-                        </td>
-                    </tr>
-                }
-            </table>
+            <div class="col-md-10">
+                <table id="tblChoices">
+                    @for (int i = 0; i < 4; i++)
+                    {
+                        <tr>
+                            <td width="10%">
+                                @Html.DisplayFor(model => model.AnswerChoices[i].No)
+                                @Html.HiddenFor(model => model.AnswerChoices[i].No)
+                            </td>
+                            <td width="90%">
+                                @Html.EditorFor(model => model.AnswerChoices[i].Answer, new { htmlAttributes = new { @class = "form-control" } })
+                                @Html.ValidationMessageFor(model => model.AnswerChoices[i].Answer, "", new { @class = "text-danger" })
+                            </td>
+                        </tr>
+                    }
+                </table>
+            </div>
         </div>
 
         <div class="form-group">
@@ -104,6 +105,30 @@
                 $("#divMultipleChoice").show();
                 $("#divAnswerChoices").show();
             }
+        }
+
+        function displayFilesToUpload() {
+            var element = document.getElementById("file");
+            var html = "";
+
+            //html = "<h3>Image(s) to Upload</h3>"
+            //for (var i = 0; i < element.files.length; i++) {
+            //    html += "<strong>" + (i + 1) + "</strong>. File: ";
+            //    var file = element.files[i];
+            //    if ('name' in file) { html += file.name + " ("; }
+            //    if ('size' in file) { html += "size: " + file.size + " bytes)<br>"; }
+            //}
+
+            html = "";
+            for (var i = 0; i < element.files.length; i++) {
+                html += "<strong>" + (i + 1) + "</strong>. File: ";
+                var file = element.files[i];
+                if ('name' in file) { html += file.name + " ("; }
+                if ('size' in file) { html += "size: " + file.size + " bytes)<br>"; }
+            }
+
+            html += "<div class='fileUpload btn btn-default'><span>Upload</span><input type='submit' class='upload' value='Upload'/></div>"
+            document.getElementById("FilesToUpload").innerHTML = html;
         }
 
         $(document).ready(function () {
