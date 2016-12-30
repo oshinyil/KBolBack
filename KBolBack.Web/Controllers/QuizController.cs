@@ -68,7 +68,7 @@ namespace KBolBack.Web.Controllers
                 quiz.CreatedBy = User.Identity.GetUserName();
                 quiz.CreatedDate = DateTime.Now;
 
-                if (Request.Files.Count > 0)
+                if (Request.Files.Count > 0 && Request.Files[0].ContentLength > 0)
                 {
                     quiz.ImageUrl = await UploadImageAsync(Request.Files[0]);
                 }
