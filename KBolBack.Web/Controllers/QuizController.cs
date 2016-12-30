@@ -40,7 +40,19 @@ namespace KBolBack.Web.Controllers
         [HttpPost]
         public ActionResult Create(Quiz quiz)
         {
-            if (quiz !=  null)
+            if (quiz != null && quiz.Type == QuestionType.ShortAnswer)
+            {
+                ModelState.Remove("AnswerChoices[0].No");
+                ModelState.Remove("AnswerChoices[0].Answer");
+                ModelState.Remove("AnswerChoices[1].No");
+                ModelState.Remove("AnswerChoices[1].Answer");
+                ModelState.Remove("AnswerChoices[2].No");
+                ModelState.Remove("AnswerChoices[2].Answer");
+                ModelState.Remove("AnswerChoices[3].No");
+                ModelState.Remove("AnswerChoices[3].Answer");
+            }
+
+            if (ModelState.IsValid)
             {
                 var client = new MongoClient(mongoDBConnection);
                 var db = client.GetDatabase(quizDatabaseName);
@@ -58,7 +70,7 @@ namespace KBolBack.Web.Controllers
 
                 collection.InsertOne(quiz);
 
-                RedirectToAction("Index");
+                return RedirectToAction("Index");
             }
 
             return View(quiz);
