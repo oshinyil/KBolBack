@@ -240,3 +240,4 @@ ModelManifest.xml
 
 # FAKE - F# Make
 .fake/
+/KBolBack.Web/Properties/PublishProfiles/KBolBack - Web Deploy.pubxml
