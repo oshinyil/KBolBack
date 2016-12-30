@@ -1,0 +1,138 @@
+﻿@model KBolBack.Web.Models.Quiz
+
+@{
+    ViewBag.Title = "Create";
+}
+
+<h2>Create</h2>
+
+
+@using (Html.BeginForm("Create", "Quiz", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+    
+    <div class="form-horizontal">
+        <h4>Quiz</h4>
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Type, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EnumDropDownListFor(model => model.Type, new { htmlAttributes = new { @class = "form-control" }, onchange = "displayAnswerField();" })
+                @Html.ValidationMessageFor(model => model.Type, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Question, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextAreaFor(model => model.Question, 5, 100, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Question, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.Label("Image", htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                <input type="file" name="FileUpload" accept="image/*"/>
+            </div>
+        </div>
+
+        <div id="divAnswerChoices">
+            @Html.Label("Choices", htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                <table id="tblChoices">
+                    @for (int i = 0; i < 4; i++)
+                    {
+                        <tr>
+                            <td width="10%">
+                                @Html.DisplayFor(model => model.AnswerChoices[i].No)
+                                @Html.HiddenFor(model => model.AnswerChoices[i].No)
+                            </td>
+                            <td width="90%">
+                                @Html.EditorFor(model => model.AnswerChoices[i].Answer, new { htmlAttributes = new { @class = "form-control" } })
+                                @Html.ValidationMessageFor(model => model.AnswerChoices[i].Answer, "", new { @class = "text-danger" })
+                            </td>
+                        </tr>
+                    }
+                </table>
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Answer, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                <div id="divMultipleChoice">
+                    @Html.DropDownListFor(model => model.Answer, KBolBack.Web.Models.SharedData.GetAnswerLetters(), new { htmlAttributes = new { @class = "form-control" } })
+                </div>
+                <div id="divShortAnswer">
+                    @Html.EditorFor(model => model.Answer, new { htmlAttributes = new { @class = "form-control" } })
+                </div>
+                @Html.ValidationMessageFor(model => model.Answer, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Create" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script>
+        function displayAnswerField()
+        {
+            if ($("#Type").val() == "1") {
+                $("#divShortAnswer #Answer").prop("disabled", false);
+                $("#divShortAnswer").show();
+
+                $("#divMultipleChoice #Answer").prop("disabled", true);
+                $("#divMultipleChoice").hide();
+                $("#divAnswerChoices").hide();
+            } else {
+                $("#divShortAnswer #Answer").prop("disabled", true);
+                $("#divShortAnswer").hide();
+
+                $("#divMultipleChoice #Answer").prop("disabled", false);
+                $("#divMultipleChoice").show();
+                $("#divAnswerChoices").show();
+            }
+        }
+
+        function displayFilesToUpload() {
+            var element = document.getElementById("file");
+            var html = "";
+
+            //html = "<h3>Image(s) to Upload</h3>"
+            //for (var i = 0; i < element.files.length; i++) {
+            //    html += "<strong>" + (i + 1) + "</strong>. File: ";
+            //    var file = element.files[i];
+            //    if ('name' in file) { html += file.name + " ("; }
+            //    if ('size' in file) { html += "size: " + file.size + " bytes)<br>"; }
+            //}
+
+            html = "";
+            for (var i = 0; i < element.files.length; i++) {
+                html += "<strong>" + (i + 1) + "</strong>. File: ";
+                var file = element.files[i];
+                if ('name' in file) { html += file.name + " ("; }
+                if ('size' in file) { html += "size: " + file.size + " bytes)<br>"; }
+            }
+
+            html += "<div class='fileUpload btn btn-default'><span>Upload</span><input type='submit' class='upload' value='Upload'/></div>"
+            document.getElementById("FilesToUpload").innerHTML = html;
+        }
+
+        $(document).ready(function () {
+            displayAnswerField();
+        });
+    </script>
+}
