@@ -19,7 +19,14 @@ namespace KBolBack.Web.Controllers
 
         public ActionResult Index()
         {
-            return View();
+            var client = new MongoClient(mongoDBConnection);
+            var db = client.GetDatabase(quizDatabaseName);
+            var collection = db.GetCollection<Quiz>("Quiz");
+             
+            var filter = Builders<Quiz>.Filter.Empty;
+            var quizzes = collection.Find(filter).SortByDescending(q => q.CreatedDate).ToList();
+
+            return View(quizzes);
         }
 
         public ActionResult Create()

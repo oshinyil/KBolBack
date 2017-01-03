@@ -1,10 +1,63 @@
-﻿
+﻿@model IEnumerable<KBolBack.Web.Models.Quiz>
 @{
     ViewBag.Title = "Index";
 }
+
+<style>
+    table, th, td {
+        border: 1px solid black;
+    }
+
+    ul {
+      list-style-type: none;
+    }
+</style>
 
 <h2>Index</h2>
 <div>
     @Html.ActionLink("Create a new question", "Create")
 </div>
 
+<table class="grid">
+    <tr>
+        <th width="5%">No.</th>
+        <th width="5%">Type</th>
+        <th width="45%">Question</th>
+        <th width="10%">Image</th>
+        <th width="20%">Answer</th>
+        <th width="15%">Created By</th>
+    </tr>
+
+    @{
+        var i = 0;
+    }
+    @foreach (var item in Model)
+    {
+        i++;
+        <tr>
+            <td class="left">@i</td>
+            <td class="left">@((KBolBack.Web.Models.QuestionType)Convert.ToInt32(item.Type))</td>
+            <td class="left">
+                <div>@item.Question</div>
+                @if ((KBolBack.Web.Models.QuestionType)Convert.ToInt32(item.Type) == KBolBack.Web.Models.QuestionType.MultipleChoice)
+                {
+                    <ul>
+                        @foreach (var choice in item.AnswerChoices)
+                        {
+                            <li>@choice.No : @choice.Answer</li>
+                        }
+                    </ul>
+                }
+            </td>
+            <td class="left">
+                @if (!string.IsNullOrEmpty(item.ImageUrl))
+                {
+                    <img src="@item.ImageUrl" style="width:150px; height:100px;" />
+                }
+            </td>
+            <td class="left">@item.Answer</td>
+            <td class="left">@item.CreatedBy</td>
+        </tr>
+    }
+
+</table>
