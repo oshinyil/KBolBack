@@ -31,6 +31,6 @@ namespace KBolBack.Web.Models
 
         public string UpdatedBy { get; set; }
 
-        public string UpdatedDate { get; set; }
+        public DateTime? UpdatedDate { get; set; }
     }
 }
