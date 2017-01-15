@@ -23,7 +23,7 @@ namespace KBolBack.Web.Controllers
             var db = client.GetDatabase(quizDatabaseName);
             var collection = db.GetCollection<Quiz>("Quiz");
              
-            var filter = Builders<Quiz>.Filter.Empty;
+            var filter = Builders<Quiz>.Filter.Eq("CreatedBy", User.Identity.GetUserName());
             var quizzes = collection.Find(filter).SortByDescending(q => q.CreatedDate).ToList();
 
             return View(quizzes);
